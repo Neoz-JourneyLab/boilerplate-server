@@ -19,6 +19,13 @@ export class ClientsStore {
     this.store.forEach((client: Client) => client.emit(eventName, payload))
   }
 
+  public broadcastOther(us: Client, eventName: string, payload?: object): void {
+    for(const cli of this.store){
+      if(cli[0] ==  us.socketId ) continue
+      cli[1].emit(eventName, payload)
+    }
+  }
+
   public kickAllClients(message?: string): void {
     clientsStore.broadcast('server:off')
     this.store.forEach((client: Client) => client.kick(message || 'kick all clients'))
