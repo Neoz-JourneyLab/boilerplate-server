@@ -1,7 +1,7 @@
 import {Client} from './client'
 
 export class ClientsStore {
-  private store: Map<string, Client> = new Map<string, Client>()
+  public store: Map<string, Client> = new Map<string, Client>()
 
   public set(socketId: string, client: Client): ClientsStore {
     this.store.set(socketId, client)

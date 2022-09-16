@@ -27,7 +27,7 @@ export const GetUws = async () => {
     /* Options */
     compression: 0
     , maxPayloadLength: 16 * 1024 * 1024
-    , idleTimeout: 0
+    , idleTimeout: 5
 
     /* Handlers */
     , upgrade: (res: HttpResponse, req: HttpRequest, context: us_socket_context_t) => {
@@ -47,7 +47,7 @@ export const GetUws = async () => {
     , open: async (ws: uws.WebSocket) => {
       const client: Client = new Client(ws)
       console.log('WebSocket Socket client connected !', client.socketId)
-      client.emit('socket:connected')
+      client.emit('socket:connected', {players: clientsStore.store.size})
     },
     message: async (ws, raw, isBinary) => {
       if (isBinary) {
