@@ -15,12 +15,15 @@ export class ClientsStore {
     return this.store.get(socketId) as Client | undefined
   }
 
-  public broadcast(eventName: string, payload?: object): void {
-    this.store.forEach((client: Client) => client.emit(eventName, payload))
+  public broadcast(eventName: string, payload?: object, channel?: string): void {
+    this.store.forEach((client: Client) => {
+      if(channel == undefined || client.channels.includes(channel)) client.emit(eventName, payload)
+    })
   }
 
-  public broadcastOther(us: Client, eventName: string, payload?: object): void {
+  public broadcastOther(us: Client, eventName: string, payload?: object, channel?: string): void {
     for(const cli of this.store){
+      if(channel != undefined && !cli[1].channels.includes(channel)) continue
       if(cli[0] ==  us.socketId ) continue
       cli[1].emit(eventName, payload)
     }

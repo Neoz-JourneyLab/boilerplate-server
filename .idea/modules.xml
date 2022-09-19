@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CryptoChat-Server-TS.iml" filepath="$PROJECT_DIR$/.idea/CryptoChat-Server-TS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/survival.iml" filepath="$PROJECT_DIR$/.idea/survival.iml" />
     </modules>
   </component>
 </project>

@@ -7,12 +7,20 @@ export class Client {
 
   public readonly socketId: string
   public readonly ip: string
+  public channels: string[] = []
 
   constructor(readonly client: uws.WebSocket) {
     this.socketId = v4()
     client.id = this.socketId
     this.ip = client.clientIp || Buffer.from(client.getRemoteAddress()).join('.')
     clientsStore.set(this.socketId, this)
+  }
+
+  public subscribe(channel: string){
+    if(!this.channels.includes(channel)) this.channels.push(channel)
+  }
+  public unsubscribe(channel: string){
+    this.channels = this.channels.filter(c => c != channel)
   }
 
   public emitError(code: string, message: string): boolean {

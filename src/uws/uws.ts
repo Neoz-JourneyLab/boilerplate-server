@@ -27,7 +27,7 @@ export const GetUws = async () => {
     /* Options */
     compression: 0
     , maxPayloadLength: 16 * 1024 * 1024
-    , idleTimeout: 5
+    , idleTimeout: 8
 
     /* Handlers */
     , upgrade: (res: HttpResponse, req: HttpRequest, context: us_socket_context_t) => {

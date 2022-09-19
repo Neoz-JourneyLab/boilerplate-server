@@ -1,4 +1,5 @@
-import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from 'typeorm'
+import {BaseEntity, Column, Entity, OneToOne, PrimaryGeneratedColumn} from 'typeorm'
+import {GameEntity} from "./game.entity";
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -10,4 +11,7 @@ export class UserEntity extends BaseEntity {
 
   @Column({name: 'socket_id', nullable: true, unique: true, type: 'varchar'})
   public socket_id!: string | null
+
+  @OneToOne(() => GameEntity, (g) => g.user)
+  game!: GameEntity | null
 }
