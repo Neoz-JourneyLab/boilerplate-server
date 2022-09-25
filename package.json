@@ -31,6 +31,7 @@
     "start": "ts-node src/index.ts",
     "start:h": "node ./build/index.js",
     "populate": "ts-node src/fake-users.ts",
+    "seeds": "ts-node src/database/seeds/generate-seeds.ts",
     "dev": "nodemon -x ts-node src/index.ts",
     "mig:gen": "./node_modules/.bin/ts-node ./node_modules/typeorm/cli.js migration:generate --name TO-REFACTOR-PROPERLY --config .env",
     "mig:mig": "./node_modules/.bin/ts-node ./node_modules/typeorm/cli.js migration:run --transaction=each"

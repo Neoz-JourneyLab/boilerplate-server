@@ -1,7 +1,7 @@
 import {clientsStore} from './clients-store'
 import * as uws from 'uWebSockets.js'
 import {v4} from 'uuid'
-import chalk from "chalk";
+import chalk from 'chalk'
 
 export class Client {
 

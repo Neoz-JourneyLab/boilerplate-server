@@ -1,5 +1,5 @@
-import {listenersStore} from "../listeners-store"
-import {Client} from "../client"
+import {listenersStore} from '../listeners-store'
+import {Client} from '../client'
 
 listenersStore.on('ping', async (client: Client, data: {ping_id: string}) => {
   try {

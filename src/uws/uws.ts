@@ -1,14 +1,14 @@
 import * as uws from 'uWebSockets.js'
 import {HttpRequest, HttpResponse, us_socket_context_t} from 'uWebSockets.js'
-import {lstatSync, readdirSync} from "fs"
-import {resolve} from "path"
+import {lstatSync, readdirSync} from 'fs'
+import {resolve} from 'path'
 import chalk from 'chalk'
 import {Client} from './client'
 import {clientsStore} from './clients-store'
 import {listenersStore} from './listeners-store'
 import {env} from '../env'
-//import {dataSource} from "../index";
-//import {UserEntity} from '../database/entity/user.entity'
+import {UserEntity} from '../database/entity/user.entity'
+import {dataSource} from '../database/datasource'
 
 export const GetUws = async () => {
   const socketUnityOptions: uws.AppOptions = {}
@@ -66,7 +66,7 @@ export const GetUws = async () => {
         if (!data.ev || data.ev.trim() === '') {
           throw new Error('event not specified !')
         }
-        await listenersStore.exec(data.ev, client, data.data == "" ? "" : JSON.parse(data.data))
+        await listenersStore.exec(data.ev, client, data.data == '' ? '' : JSON.parse(data.data))
       } catch (e) {
         const str: string = (e as string).toString()
         console.info(`error:', ${str}, ${data.ev}`)
@@ -78,9 +78,9 @@ export const GetUws = async () => {
     close: async (ws: uws.WebSocket/*, _code: number, _raw: ArrayBuffer*/) => {
       clientsStore.delete(ws.id)
       console.log('closing socket ', ws.id)
-      /*await dataSource.manager.createQueryBuilder()
+      await dataSource.manager.createQueryBuilder()
         .update(UserEntity).set({socket_id: null})
-        .where('socket_id = :sid', {sid: ws.id}).execute()*/
+        .where('socket_id = :sid', {sid: ws.id}).execute()
       try {
         ws.close()
       }catch (err){

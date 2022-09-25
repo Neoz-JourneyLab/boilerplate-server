@@ -1,5 +1,6 @@
-import {BaseEntity, Column, Entity, OneToOne, PrimaryGeneratedColumn} from 'typeorm'
-import {GameEntity} from "./game.entity";
+import {BaseEntity, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from 'typeorm'
+import {GameEntity} from './game.entity'
+import {ItemEntity} from './item.entity'
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -14,4 +15,7 @@ export class UserEntity extends BaseEntity {
 
   @OneToOne(() => GameEntity, (g) => g.user)
   game!: GameEntity | null
+
+  @OneToMany(() => ItemEntity, (i) => i.user)
+  items!: ItemEntity[]
 }

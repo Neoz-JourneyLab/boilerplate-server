@@ -1,9 +1,9 @@
-import {listenersStore} from "../listeners-store"
-import {Client} from "../client"
-import {dataSource} from "../../index";
-import {UserEntity} from "../../database/entity/user.entity";
-import {GameEntity} from "../../database/entity/game.entity";
-import {clientsStore} from "../clients-store";
+import {listenersStore} from '../listeners-store'
+import {Client} from '../client'
+import {dataSource} from '../../database/datasource'
+import {UserEntity} from '../../database/entity/user.entity'
+import {GameEntity} from '../../database/entity/game.entity'
+import {clientsStore} from '../clients-store'
 
 listenersStore.on('join:game', async (client: Client, data: { id: string }) => {
   const user: UserEntity | null = await dataSource.manager.getRepository(UserEntity).findOneBy({socket_id: client.socketId})

@@ -2,7 +2,7 @@
 const cryptographic = require('crypto')
 
 /**
- * generates random string of characters i.e salt
+ * generates random string of characters i.e. salt
  * @function
  * @param {number} length - Length of the random string.
  */

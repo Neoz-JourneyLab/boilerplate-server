@@ -1,7 +1,7 @@
-import {listenersStore} from "../listeners-store"
-import {Client} from "../client"
-import { clientsStore } from "../clients-store"
+import {listenersStore} from '../listeners-store'
+import {Client} from '../client'
+import { clientsStore } from '../clients-store'
 
 listenersStore.on('flashlight:emit', async (client: Client, data: {flashlightState: boolean}) => {
-    clientsStore.broadcastOther(client, "flashlight:receive", {uuid : client.socketId, state: data.flashlightState  }, client.channels[0] )
+    clientsStore.broadcastOther(client, 'flashlight:receive', {uuid : client.socketId, state: data.flashlightState  }, client.channels[0] )
 })
