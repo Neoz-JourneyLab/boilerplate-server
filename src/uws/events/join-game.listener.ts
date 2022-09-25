@@ -25,8 +25,10 @@ listenersStore.on('join:game', async (client: Client, data: { id: string }) => {
   if (!host) throw  new Error('host not found')
   if (!host.socket_id) throw  new Error('host not online')
 
-  client.subscribe(game.id)
-  client.emit('joined:game', {id: data.id, host: false})
+  if(client.socketId != host.socket_id) {
+    client.subscribe(game.id)
+    client.emit('joined:game', {id: data.id, host: false})
+  }
   clientsStore.getBySocketId(host.socket_id)?.emit('joined:game', {id: data.id, host: true})
   clientsStore.getBySocketId(host.socket_id)?.subscribe(game.id)
 })

@@ -15,7 +15,7 @@ export async function Seeds() {
         equipable: item.equipable,
         width: item.width,
         height: item.height,
-      }).where({id: item.id}).execute()
+      }).where({alias: item.alias}).execute()
     } else {
       let id: string = '00000000-0000-4000-0000-' + ('000000000000' + count).slice(-12)
       console.log(chalk.rgb(150, 250, 0)('insert item ' + id))

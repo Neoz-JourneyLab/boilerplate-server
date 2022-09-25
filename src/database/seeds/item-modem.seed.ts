@@ -10,7 +10,7 @@ export const ItemModels: any[] = [
   {
     alias: 'pistolAmmo',
     category: 'ammo',
-    maxStack: 5,
+    maxStack: 10,
     equipable: false,
     width: 1,
     height: 1,
@@ -18,7 +18,7 @@ export const ItemModels: any[] = [
   {
     alias: 'battery',
     category: 'consumable',
-    maxStack: 5,
+    maxStack: 3,
     equipable: false,
     width: 1,
     height: 2,
