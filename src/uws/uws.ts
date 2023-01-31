@@ -1,27 +1,29 @@
 import * as uws from 'uWebSockets.js'
-import {HttpRequest, HttpResponse, us_socket_context_t} from 'uWebSockets.js'
 import {lstatSync, readdirSync} from "fs"
 import {resolve} from "path"
 import chalk from 'chalk'
+import {HttpRequest, HttpResponse, us_socket_context_t} from 'uWebSockets.js'
 import {Client} from './client'
 import {clientsStore} from './clients-store'
 import {listenersStore} from './listeners-store'
 import {env} from '../env'
-//import {dataSource} from "../index";
-//import {UserEntity} from '../database/entity/user.entity'
+import {dataSource} from "../index";
+import {UserEntity} from '../database/entity/user.entity'
 
 export const GetUws = async () => {
   const socketUnityOptions: uws.AppOptions = {}
   const socketUnity = uws.App(socketUnityOptions)
 
   const files: string[] = readdirSync(resolve(__dirname, 'events'))
+  console.info(chalk.green.bold(files.length, 'listeners loaded'))
+
   for (const file of files) {
+    console.log(chalk.gray('   >', file))
     const filePath: string = resolve(__dirname, 'events', file)
     if (lstatSync(filePath).isFile()) {
       await import(filePath)
     }
   }
-  console.info(chalk.green.bold(files.length, 'listeners loaded'))
 
   socketUnity.ws('/', {
     /* Options */
@@ -78,9 +80,9 @@ export const GetUws = async () => {
     close: async (ws: uws.WebSocket/*, _code: number, _raw: ArrayBuffer*/) => {
       clientsStore.delete(ws.id)
       console.log('closing socket ', ws.id)
-      /*await dataSource.manager.createQueryBuilder()
+      await dataSource.manager.createQueryBuilder()
         .update(UserEntity).set({socket_id: null})
-        .where('socket_id = :sid', {sid: ws.id}).execute()*/
+        .where('socket_id = :sid', {sid: ws.id}).execute()
       try {
         ws.close()
       }catch (err){

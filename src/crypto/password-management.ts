@@ -6,7 +6,7 @@ const cryptographic = require('crypto')
  * @function
  * @param {number} length - Length of the random string.
  */
-const genRandomString = function (length: number): string {
+export const genRandomString = function (length: number): string {
   return cryptographic.randomBytes(Math.ceil(length / 2))
     .toString('hex') /** convert to hexadecimal format */
     .slice(0, length)   /** return required number of characters */
@@ -27,8 +27,4 @@ export const HashAndSaltSha512 = function (password: string, salt: string): { sa
     salt: salt,
     passwordHash: value
   }
-}
-
-export function saltHashPassword(userPassword: string) {
-  return HashAndSaltSha512(userPassword, genRandomString(16))
 }

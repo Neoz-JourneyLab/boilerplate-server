@@ -1,8 +1,11 @@
 import express, {Express} from 'express'
 import bodyParser from 'body-parser'
 import {Test} from './post/test'
+import {Autentication} from './post/authentication'
 import chalk from 'chalk'
 import {env} from '../env'
+import {ServerStatus} from './post/server-status'
+import {TestCrypto} from './post/test-crypto'
 
 export const getExpress = ():Express => {
   const app = express()
@@ -12,6 +15,30 @@ export const getExpress = ():Express => {
   app.post("/test", async (req, res) => {
     try {
       await Test(req, res)
+    } catch (e) {
+      EndErr(e, res)
+    }
+  })
+
+  app.post("/authentication", async (req, res) => {
+    try {
+      await Autentication(req, res)
+    } catch (e) {
+      EndErr(e, res)
+    }
+  })
+
+  app.post("/server:status", async (req, res) => {
+    try {
+      await ServerStatus(req, res)
+    } catch (e) {
+      EndErr(e, res)
+    }
+  })
+
+  app.post("/testCrypto", async (req, res) => {
+    try {
+      await TestCrypto(req, res)
     } catch (e) {
       EndErr(e, res)
     }
