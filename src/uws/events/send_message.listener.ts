@@ -38,7 +38,7 @@ listenersStore.on('send:message', async (client: Client, data: {
       content: data.cipher,
       send_at: date,
       distributed: to.socket_id != null,
-      pending_batch: false,
+      pending_batch: '1/1',
     }
     client.emit('new:message', message)
 

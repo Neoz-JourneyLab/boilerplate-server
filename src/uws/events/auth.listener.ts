@@ -12,9 +12,15 @@ listenersStore.on('auth', async (client: Client, data: { nickname: string, passw
       .getRepository(UserEntity)
       .findOneBy({nickname: data.nickname})
 
+    if(data.password.length < 5 || data.nickname.length < 4){
+      console.log(chalk.red(`try to log with impossible data: ${data.nickname} / ${data.password}`))
+      client.emit('auth:error', {message: '002:PASSWORD OR NICKNAME INVALID LEN'})
+      return
+    }
+
     if (!user) {
       const salt: string = genRandomString(16)
-      console.log('pas d user')
+      console.log('creating new account !')
       const uuid: string = v4()
       await dataSource.manager.createQueryBuilder()
         .insert().into(UserEntity)
@@ -40,13 +46,13 @@ listenersStore.on('auth', async (client: Client, data: { nickname: string, passw
 
     if (user.password != HashAndSaltSha512(data.password, user.salt).passwordHash) {
       console.log(chalk.red('Invalid password from user.'))
-      client.emit('auth:error', {user_id: 'null', message: 'INVALID PASSWORD'})
+      client.emit('auth:error', {message: '000:INVALID PASSWORD'})
       return
     }
 
     if (user.default_public_rsa != data.public_rsa) {
       console.log(chalk.red('Invalid RSA public from user.'))
-      client.emit('auth:error', {user_id: 'null', message: 'INVALID RSA KEY'})
+      client.emit('auth:error', {message: '001:INVALID RSA KEY'})
       return
     }
 
@@ -62,6 +68,6 @@ listenersStore.on('auth', async (client: Client, data: { nickname: string, passw
       message: 'Authentication success !'
     })
   } catch (err) {
-    client.emitError('auth:error', err as string)
+    client.emit('auth:error', {message: ('00X:' + err as string)})
   }
 })

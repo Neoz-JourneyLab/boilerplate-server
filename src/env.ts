@@ -41,5 +41,5 @@ export const env: Readonly<EnvInterface> = cleanEnv(process.env, {
 
   , PORT: num({default: 9997})
   , MESSAGE_CONSERVATION_DAYS: num({default: 30})
-  , MESSAGE_READ_CONSERVATION_DAYS: num({default: 1})
+  , MESSAGE_READ_CONSERVATION_DAYS: num({default: 10})
 })

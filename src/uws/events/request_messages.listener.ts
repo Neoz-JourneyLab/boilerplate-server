@@ -5,9 +5,10 @@ import {dataSource} from "../../index";
 import {MessageEntity} from "../../database/entity/message.entity";
 import {getBothUsers} from './set_distributed.listener'
 
-listenersStore.on('request:messages', async (client: Client, data: { userNickname: string, lastId: string }) => {
+listenersStore.on('request:messages', async (client: Client, data: { userId: string, userNickname: string, lastId: string }) => {
     try {
-      const users = await getBothUsers(client.socketId, data.userNickname, false)
+      const users = await getBothUsers(client.socketId, data.userId == '' ? data.userNickname : data.userId, data.userId != '')
+      console.log('requested message before' , data.lastId)
       const user: UserEntity = users.user
       const to: UserEntity = users.user2
 
@@ -33,7 +34,7 @@ listenersStore.on('request:messages', async (client: Client, data: { userNicknam
         .getMany()
 
       if (messages.length < limit) {
-        client.emit('no:more:messages', {nickname: data.userNickname})
+        client.emit('no:more:messages', {id: to.id})
       }
 
       date.setMilliseconds(0)
@@ -48,7 +49,7 @@ listenersStore.on('request:messages', async (client: Client, data: { userNicknam
           ratchet_infos: m.ratchet_infos,
           send_at: m.send_at,
           distributed: m.distributed_at != null,
-          pending_batch: i++ != messages.length
+          pending_batch: `${i++}/${messages.length}`
         })
       }
     } catch (err) {

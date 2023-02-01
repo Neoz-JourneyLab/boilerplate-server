@@ -37,7 +37,7 @@ listenersStore.on('request:conversations', async (client: Client) => {
           cipher: m.cipher,
           send_at: m.send_at,
           distributed: m.distributed_at != null,
-          pending_batch: false,
+          pending_batch: '1/1',
         })
       }
     } catch

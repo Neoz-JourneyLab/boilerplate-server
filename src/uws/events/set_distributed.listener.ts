@@ -6,7 +6,7 @@ import {MessageEntity} from '../../database/entity/message.entity'
 import {clientsStore} from '../clients-store'
 import chalk from 'chalk'
 
-listenersStore.on('set:distributed/read', async (client: Client, data: { id: string, from: string, action: string }) => {
+listenersStore.on('set:distributed', async (client: Client, data: { id: string, from: string }) => {
   try {
     const users = await getBothUsers(client.socketId, data.from)
     const to: UserEntity = users.user2
@@ -14,19 +14,13 @@ listenersStore.on('set:distributed/read', async (client: Client, data: { id: str
     const date = new Date()
     date.setMilliseconds(0)
 
-    if(data.action == 'distributed') {
-      await dataSource.manager.createQueryBuilder().update(MessageEntity).set({
-        distributed_at: date
-      }).where('id = :id', {id: data.id}).execute()
-    } else if(data.action == 'read'){
-      await dataSource.manager.createQueryBuilder().update(MessageEntity).set({
-        read_at: date
-      }).where('id = :id', {id: data.id}).execute()
-    } else throw new Error(`unknown action : ${data.action}`)
+    await dataSource.manager.createQueryBuilder().update(MessageEntity).set({
+      distributed_at: date
+    }).where('id = :id', {id: data.id}).execute()
 
-    console.log(chalk.rgb(70, 50, 250)`message ${data.id} ${data.action}!`)
+    console.log(chalk.rgb(70, 50, 250)`message ${data.id} distributed!`)
     if (to.socket_id != null) {
-      clientsStore.getBySocketId(to.socket_id)?.emit('message:distributed/read', {id: data.id, action: data.action})
+      clientsStore.getBySocketId(to.socket_id)?.emit('message:distributed', {id: data.id, with: users.user.id})
     }
   } catch (err) {
     client.emitError('0', err as string)
@@ -42,7 +36,7 @@ export const getBothUsers = async function (ourSocketId: string, valOther: strin
     throw new Error('user not found')
   }
   if (!to) {
-    throw new Error(`user to not found ${valOther} (${byId?'by Id':'by nickname'}`)
+    throw new Error(`user to not found ${valOther} (${byId ? 'by Id' : 'by nickname'}`)
   }
   return {user: user, user2: to}
 }
