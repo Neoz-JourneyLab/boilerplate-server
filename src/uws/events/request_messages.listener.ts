@@ -23,24 +23,32 @@ listenersStore.on('request:messages', async (client: Client, data: { userNicknam
       const messages: MessageEntity[] = await dataSource.manager.getRepository(MessageEntity).createQueryBuilder('message')
         .innerJoinAndSelect('message.from', 'from')
         .innerJoinAndSelect('message.to', 'to')
-        .where('((from.id = :id AND to.id = :ido) OR (from.id = :ido AND to.id = :id)) AND send_at < :date', {id: user.id, ido: to.id, date: date})
+        .where('((from.id = :id AND to.id = :ido) OR (from.id = :ido AND to.id = :id)) AND send_at < :date', {
+          id: user.id,
+          ido: to.id,
+          date: date
+        })
         .orderBy('message.send_at', 'DESC')
         .limit(limit)
         .getMany()
 
-      if(messages.length < limit){
+      if (messages.length < limit) {
         client.emit('no:more:messages', {nickname: data.userNickname})
       }
 
       date.setMilliseconds(0)
+      let i = 1;
       for (const m of messages) {
         client.emit('new:message', {
           from: m.from.id,
           to: m.to.id,
           id: m.id,
-          content: m.cipher,
+          cipher: m.cipher,
+          sender_rsa_info: m.sender_rsa_info,
+          ratchet_infos: m.ratchet_infos,
           send_at: m.send_at,
           distributed: m.distributed_at != null,
+          pending_batch: i++ != messages.length
         })
       }
     } catch (err) {

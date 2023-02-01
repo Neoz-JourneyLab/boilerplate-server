@@ -12,8 +12,8 @@ export class MessageEntity {
   @Column({name: 'ratchet_infos', nullable: false, unique: false, type: 'varchar'})
   public ratchet_infos!: string
 
-  @Column({name: 'new_public_rsa', nullable: false, unique: false, type: 'varchar'})
-  public new_public_rsa!: string
+  @Column({name: 'sender_rsa_info', nullable: false, unique: false, type: 'varchar'})
+  public sender_rsa_info!: string
 
   @Column({name: 'send_at', nullable: false, default: () => 'current_timestamp', type: 'timestamptz'})
   public send_at!: Date

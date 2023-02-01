@@ -23,21 +23,21 @@ listenersStore.on('request:conversations', async (client: Client) => {
           .innerJoin('message.from', 'from')
           .innerJoin('message.to', 'to')
           .where('(from.id = :id AND to.id = :ido) OR (from.id = :ido AND to.id = :id)', {id: user.id, ido: u.id})
-          .select(['message.id', 'message.encryption_key',
-            'message.sender_encryption_key', 'message.send_at', 'message.distributed_at', 'message.read_at',
-            'from.id', 'to.id', 'from.nickname', 'to.nickname','message.content'])
+          .select(['message.id', 'message.send_at', 'message.distributed_at',
+            'from.id', 'to.id', 'from.nickname', 'to.nickname', 'message.cipher', 'message.ratchet_infos', 'message.sender_rsa_info'])
           .orderBy('send_at', 'DESC')
           .getOne()
         if (!m) throw new Error('cannot find message')
         client.emit('new:message', {
+          id: m.id,
           from: m.from.id,
           to: m.to.id,
-          fgn_nick: m.to.id == user.id ? m.from.nickname : m.to.nickname,
-          id: m.id,
           ratchet_infos: m.ratchet_infos,
-          content: m.cipher,
+          sender_rsa_info: m.sender_rsa_info,
+          cipher: m.cipher,
           send_at: m.send_at,
-          distributed: m.distributed_at != null
+          distributed: m.distributed_at != null,
+          pending_batch: false,
         })
       }
     } catch
