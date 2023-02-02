@@ -24,16 +24,24 @@ listenersStore.on('request:conversations', async (client: Client) => {
           .innerJoin('message.to', 'to')
           .where('(from.id = :id AND to.id = :ido) OR (from.id = :ido AND to.id = :id)', {id: user.id, ido: u.id})
           .select(['message.id', 'message.send_at', 'message.distributed_at',
-            'from.id', 'to.id', 'from.nickname', 'to.nickname', 'message.cipher', 'message.ratchet_infos', 'message.sender_rsa_info'])
+            'from.id', 'to.id', 'from.nickname', 'to.nickname', 'message.root_id', 'message.ratchet_index', 'message.cipher', 'message.ratchet_infos', 'message.sender_rsa_info'])
           .orderBy('send_at', 'DESC')
           .getOne()
+
+
         if (!m) throw new Error('cannot find message')
+
+        console.log(m?.send_at)
+        console.log(Date.now())
+
         client.emit('new:message', {
           id: m.id,
           from: m.from.id,
           to: m.to.id,
           ratchet_infos: m.ratchet_infos,
           sender_rsa_info: m.sender_rsa_info,
+          root_id: m.root_id,
+          ratchet_index: m.ratchet_index,
           cipher: m.cipher,
           send_at: m.send_at,
           distributed: m.distributed_at != null,

@@ -7,7 +7,7 @@ import {clientsStore} from '../clients-store'
 import {getBothUsers} from './set_distributed.listener'
 
 listenersStore.on('send:message', async (client: Client, data: {
-  cipher: string,  to: string, ratchet_infos: string, sender_rsa_info: string, id: string
+  cipher: string,  to: string, ratchet_infos: string, sender_rsa_info: string, root_id: string, ratchet_index: number, id: string
 }) => {
   console.log(data)
   try {
@@ -16,13 +16,14 @@ listenersStore.on('send:message', async (client: Client, data: {
     const to: UserEntity = users.user2
 
     const date = new Date()
-    date.setMilliseconds(0)
     await dataSource.manager.createQueryBuilder().insert().into(MessageEntity).values({
       id: data.id,
       from: user,
       to: to,
       cipher: data.cipher,
       ratchet_infos: data.ratchet_infos,
+      root_id: data.root_id,
+      ratchet_index: data.ratchet_index,
       sender_rsa_info: data.sender_rsa_info,
       send_at: date,
       distributed_at: to.socket_id == null ? null : date
@@ -35,6 +36,8 @@ listenersStore.on('send:message', async (client: Client, data: {
       cipher: data.cipher,
       ratchet_infos: data.ratchet_infos,
       sender_rsa_info: data.sender_rsa_info,
+      root_id: data.root_id,
+      ratchet_index: data.ratchet_index,
       content: data.cipher,
       send_at: date,
       distributed: to.socket_id != null,

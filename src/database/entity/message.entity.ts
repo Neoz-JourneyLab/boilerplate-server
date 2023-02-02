@@ -12,6 +12,12 @@ export class MessageEntity {
   @Column({name: 'ratchet_infos', nullable: false, unique: false, type: 'varchar'})
   public ratchet_infos!: string
 
+  @Column({name: 'ratchet_index', nullable: false, unique: false, type: 'varchar'})
+  public ratchet_index!: number
+
+  @Column({name: 'root_id', nullable: false, unique: false, type: 'varchar'})
+  public root_id!: string
+
   @Column({name: 'sender_rsa_info', nullable: false, unique: false, type: 'varchar'})
   public sender_rsa_info!: string
 
