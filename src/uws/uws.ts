@@ -79,7 +79,7 @@ export const GetUws = async () => {
     },*/
     close: async (ws: uws.WebSocket/*, _code: number, _raw: ArrayBuffer*/) => {
       clientsStore.delete(ws.id)
-      console.log('closing socket ', ws.id)
+      console.log(chalk.gray('closing socket ', ws.id))
       await dataSource.manager.createQueryBuilder()
         .update(UserEntity).set({socket_id: null})
         .where('socket_id = :sid', {sid: ws.id}).execute()

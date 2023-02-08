@@ -7,48 +7,72 @@ import {clientsStore} from '../clients-store'
 import {getBothUsers} from './set_distributed.listener'
 
 listenersStore.on('send:message', async (client: Client, data: {
-  cipher: string,  to: string, ratchet_infos: string, sender_rsa_info: string, root_id: string, ratchet_index: number, id: string
+  cipher: string, to: string, ratchet_infos: string, sender_rsa_info: string, root_id: string, ratchet_index: number, id: string
 }) => {
   console.log(data)
-  try {
-    const users = await getBothUsers(client.socketId, data.to)
-    const user: UserEntity = users.user
-    const to: UserEntity = users.user2
 
-    const date = new Date()
-    await dataSource.manager.createQueryBuilder().insert().into(MessageEntity).values({
-      id: data.id,
-      from: user,
-      to: to,
-      cipher: data.cipher,
-      ratchet_infos: data.ratchet_infos,
-      root_id: data.root_id,
-      ratchet_index: data.ratchet_index,
-      sender_rsa_info: data.sender_rsa_info,
-      send_at: date,
-      distributed_at: to.socket_id == null ? null : date
-    }).execute()
+  if (data.ratchet_index > 1 && data.ratchet_infos != '') {
+    throw new Error('cannot deliver info with used ratchet')
+  }
 
-    const message = {
-      id: data.id,
-      from: user.id,
-      to: to.id,
-      cipher: data.cipher,
-      ratchet_infos: data.ratchet_infos,
-      sender_rsa_info: data.sender_rsa_info,
-      root_id: data.root_id,
-      ratchet_index: data.ratchet_index,
-      content: data.cipher,
-      send_at: date,
-      distributed: to.socket_id != null,
-      pending_batch: '1/1',
+  if (data.ratchet_infos != '' && data.sender_rsa_info == '' || data.ratchet_infos == '' && data.sender_rsa_info != '') {
+    throw new Error('cannot send ratchet infos without rsa infos')
+  }
+
+  const users = await getBothUsers(client.socketId, data.to)
+  const user: UserEntity = users.user
+  const to: UserEntity = users.user2
+
+  data.ratchet_infos = 'aze'
+
+  //vérifier que si le message contient des infos de ratchet, le message précédent n'en contient pas du même émetteur
+  const lastMessageFromThatConv: MessageEntity | null = await dataSource.manager.getRepository(MessageEntity).createQueryBuilder('message')
+    .innerJoin('message.from', 'from')
+    .innerJoin('message.to', 'to')
+    .where('(from.id = :id AND to.id = :ido) OR (from.id = :ido AND to.id = :id)', {id: user.id, ido: to.id})
+    .select(['message.id', 'message.send_at', 'from.id', 'to.id', 'message.ratchet_infos'])
+    .orderBy('send_at', 'DESC')
+    .getOne()
+  if (lastMessageFromThatConv) {
+    if (lastMessageFromThatConv.from.id == user.id && data.ratchet_infos != '') {
+      throw new Error('cannot send ratchet infos : previous message is from us')
     }
-    client.emit('new:message', message)
-
-    if (to.socket_id != null) {
-      clientsStore.getBySocketId(to.socket_id)?.emit('new:message', message)
+    if (lastMessageFromThatConv.from.id == to.id && data.ratchet_infos == '') {
+      throw new Error('cannot send new message if it doesnt contains ratchet infos : last message is not from us')
     }
-  } catch (err) {
-    client.emitError(__filename.split('\\')[__filename.split('\\').length], err as string)
+  }
+
+  const date = new Date()
+  await dataSource.manager.createQueryBuilder().insert().into(MessageEntity).values({
+    id: data.id,
+    from: user,
+    to: to,
+    cipher: data.cipher,
+    ratchet_infos: data.ratchet_infos,
+    root_id: data.root_id,
+    ratchet_index: data.ratchet_index,
+    sender_rsa_info: data.sender_rsa_info,
+    send_at: date,
+    distributed_at: to.socket_id == null ? null : date
+  }).execute()
+
+  const message = {
+    id: data.id,
+    from: user.id,
+    to: to.id,
+    cipher: data.cipher,
+    ratchet_infos: data.ratchet_infos,
+    sender_rsa_info: data.sender_rsa_info,
+    root_id: data.root_id,
+    ratchet_index: data.ratchet_index,
+    content: data.cipher,
+    send_at: date,
+    distributed: to.socket_id != null,
+    pending_batch: '1/1',
+  }
+  client.emit('new:message', message)
+
+  if (to.socket_id != null) {
+    clientsStore.getBySocketId(to.socket_id)?.emit('new:message', message)
   }
 })

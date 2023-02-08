@@ -9,11 +9,14 @@ export class ListenersStore {
 
   public async exec(eventName: string, client: Client, payload: object): Promise<void> {
     const listener: Function | undefined = this.store.get(eventName)
-    if(!listener) {
-      throw new Error( `No listener for event: ${eventName}`)
+    if (!listener) {
+      throw new Error(`No listener for event: ${eventName}`)
     }
-
-    await listener(client, payload, {name: eventName})
+    try {
+      await listener(client, payload, {name: eventName})
+    } catch (err) {
+      client.emitError(eventName, err as string)
+    }
   }
 }
 
