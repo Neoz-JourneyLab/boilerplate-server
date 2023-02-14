@@ -6,6 +6,9 @@ import {MessageEntity} from '../../database/entity/message.entity'
 import {clientsStore} from '../clients-store'
 import chalk from 'chalk'
 
+/**
+ * set a message as distributed and notify sender if he is online
+ */
 listenersStore.on('set:distributed', async (client: Client, data: { id: string, from: string }) => {
   const users = await getBothUsers(client.socketId, data.from)
   const to: UserEntity = users.user2
@@ -23,6 +26,12 @@ listenersStore.on('set:distributed', async (client: Client, data: { id: string, 
   }
 })
 
+/**
+ * get user and related foreign user in the same function
+ * @param ourSocketId : client socket id
+ * @param valOther : foreign user socket id or nickname
+ * @param byId : true if valOther contains ID
+ */
 export const getBothUsers = async function (ourSocketId: string, valOther: string, byId: boolean = true): Promise<{ user: UserEntity, user2: UserEntity }> {
   const user: UserEntity | null = await dataSource.manager.getRepository(UserEntity).findOneBy({socket_id: ourSocketId})
   const to: UserEntity | null =

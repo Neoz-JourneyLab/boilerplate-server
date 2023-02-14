@@ -19,8 +19,8 @@ export const genRandomString = function (length: number): string {
  * @param {string} salt - Data to be validated.
  */
 export const HashAndSaltSha512 = function (password: string, salt: string): { salt: string, passwordHash: string } {
-  const hash = cryptographic.createHmac('sha512', salt)/** Hashing algorithm sha512 */
-
+  /** Hashing algorithm sha512 */
+  const hash = cryptographic.createHmac('sha512', salt)
   hash.update(password)
   const value = hash.digest('hex')
   return {

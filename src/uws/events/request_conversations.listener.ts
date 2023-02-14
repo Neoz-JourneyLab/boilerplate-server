@@ -4,19 +4,24 @@ import {UserEntity} from '../../database/entity/user.entity'
 import {dataSource} from '../../index'
 import {MessageEntity} from '../../database/entity/message.entity'
 
+/**
+ * send all last message from all conversation we have
+ */
 listenersStore.on('request:conversations', async (client: Client) => {
   const user: UserEntity | null = await dataSource.manager.getRepository(UserEntity).findOneBy({socket_id: client.socketId})
   if (!user) throw new Error('user not found')
 
+  //get all users related
   const usersDistant: UserEntity[] = await dataSource.manager.getRepository(UserEntity).createQueryBuilder('user')
-    .leftJoin('user.messagesFrom', 'from') //tous les messages envoyés
-    .leftJoin('user.messagesTo', 'to') //tous les messages reçus
-    .leftJoin('from.to', 'too') //a qui sont destinés les messages envoyés
-    .leftJoin('to.from', 'fromm') //a qui sont destinés les messages reçu
+    .leftJoin('user.messagesFrom', 'from') //all sent messages
+    .leftJoin('user.messagesTo', 'to') //all received messages
+    .leftJoin('from.to', 'too') //that are for sent messages
+    .leftJoin('to.from', 'fromm') //that are from emitted messages
     .where('too.id = :id OR fromm.id = :id', {id: user.id})
     .select(['user.id'])
     .getMany()
 
+  //for each users, get and send last message
   for (const u of usersDistant) {
     const m: MessageEntity | null = await dataSource.manager.getRepository(MessageEntity).createQueryBuilder('message')
       .innerJoin('message.from', 'from')

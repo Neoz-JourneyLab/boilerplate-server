@@ -3,6 +3,10 @@ import {MessageEntity} from './database/entity/message.entity'
 import {env} from './env'
 import chalk from 'chalk'
 
+/**
+ * delete all olds messages
+ * distributed and not distributed don't have same archive delay
+ */
 export const deleteOldMessages = async () => {
   const messageTimeOut = new Date(Date.now() - 1000 * 3600 * 24 * env.MESSAGE_CONSERVATION_DAYS)
   const messageReadTimeOut = new Date(Date.now() - 1000 * 3600 * 24 * env.MESSAGE_READ_CONSERVATION_DAYS)

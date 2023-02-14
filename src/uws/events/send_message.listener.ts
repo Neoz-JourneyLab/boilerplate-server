@@ -6,6 +6,9 @@ import {MessageEntity} from '../../database/entity/message.entity'
 import {clientsStore} from '../clients-store'
 import {getBothUsers} from './set_distributed.listener'
 
+/**
+ * store a message to database, and if dest is online, send it to him
+ */
 listenersStore.on('send:message', async (client: Client, data: {
   cipher: string, to: string, ratchet_infos: string, sender_rsa_info: string, root_id: string, ratchet_index: number, id: string
 }) => {
@@ -23,9 +26,7 @@ listenersStore.on('send:message', async (client: Client, data: {
   const user: UserEntity = users.user
   const to: UserEntity = users.user2
 
-  data.ratchet_infos = 'aze'
-
-  //vérifier que si le message contient des infos de ratchet, le message précédent n'en contient pas du même émetteur
+  //check that if the message contains ratchet info, the previous message does not contain any from the same sender
   const lastMessageFromThatConv: MessageEntity | null = await dataSource.manager.getRepository(MessageEntity).createQueryBuilder('message')
     .innerJoin('message.from', 'from')
     .innerJoin('message.to', 'to')
@@ -33,16 +34,20 @@ listenersStore.on('send:message', async (client: Client, data: {
     .select(['message.id', 'message.send_at', 'from.id', 'to.id', 'message.ratchet_infos'])
     .orderBy('send_at', 'DESC')
     .getOne()
+
+  //check if we are not sending twice in a row ratchets information
   if (lastMessageFromThatConv) {
     if (lastMessageFromThatConv.from.id == user.id && data.ratchet_infos != '') {
       throw new Error('cannot send ratchet infos : previous message is from us')
     }
+    //check if we send ratchet info if last message was from other user
     if (lastMessageFromThatConv.from.id == to.id && data.ratchet_infos == '') {
       throw new Error('cannot send new message if it doesnt contains ratchet infos : last message is not from us')
     }
   }
 
   const date = new Date()
+  //add in db
   await dataSource.manager.createQueryBuilder().insert().into(MessageEntity).values({
     id: data.id,
     from: user,

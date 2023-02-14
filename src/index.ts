@@ -14,14 +14,21 @@ export const dataSource = new DataSource({
   type: 'postgres',
   synchronize: true,
   entities: [UserEntity, MessageEntity],
-  //logging: ['query']
 })
 
+/**
+ * start the server
+ */
 dataSource.initialize().then(async () => {
-  getExpress()
-  await GetUws()
-  await dataSource.manager.createQueryBuilder().update(UserEntity).set({socket_id: null}).execute()
+  getExpress() //start HTTP server (unused)
+  await GetUws() //start WebSocket server
 
+  //reset all socket ID to null
+  await dataSource.manager.createQueryBuilder()
+    .update(UserEntity)
+    .set({socket_id: null}).execute()
+
+  //execute cron task every hour
   cron.schedule('0 * * * *', async function() {
     await deleteOldMessages()
   })
